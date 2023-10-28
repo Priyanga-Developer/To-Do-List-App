@@ -1,24 +1,68 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react'
+import Header from './Header';
+import Content from './Content';
+import Footer from './Footer';
+import AddItem from './AddItem';
+import SearchItem from './SearchItem';
 
-function App() {
-  return (
+
+const App=()=> {
+  const [items,setItems]=useState(JSON.parse(localStorage.getItem("to-do-list")));
+  const [newItem,setNewItem]=useState('');
+  const [search,setSearch]=useState('');
+
+  const addItem=(task)=>{
+    const id=items.length? items[items.length-1].id+1 :1;
+    const addNewItem={id,task,checked:false}
+    const listItems=[...items,addNewItem]
+    setItems(listItems)
+    localStorage.setItem("to-do-list",JSON.stringify(listItems))
+  }
+
+  const  handleOnchange=(id)=>{
+      const listitems=items.map((item)=>
+         item.id===id ?{...item,checked:!item.checked}:item)
+         setItems(listitems)
+         localStorage.setItem("to-do-list",JSON.stringify(listitems))
+  }
+
+    const handleDelete=(id)=>{
+          const newlist=items.filter((item)=>item.id!==id )
+          setItems(newlist)
+          localStorage.setItem("to-do-list",JSON.stringify(newlist))
+
+    }
+
+    const handleSubmit=(e)=>{
+            e.preventDefault()
+            if(!newItem) return;
+            console.log(newItem)
+            addItem(newItem)
+            setNewItem('')
+    }
+
+  
+
+   return (
+    
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header/>
+      <AddItem 
+           newItem={newItem}
+           setNewItem={setNewItem}
+           handleSubmit={handleSubmit}
+      />
+      <SearchItem
+               search={search}
+               setSearch={setSearch}
+      />
+      <Content items={items.filter(item=>(item.task.toLowerCase()).includes((search.toLowerCase())))}
+               handleOnchange={handleOnchange}
+               handleDelete={handleDelete}
+      />
+      <Footer/>
     </div>
+    
   );
 }
 
